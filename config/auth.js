@@ -1,5 +1,6 @@
 module.exports = {
   ensureAuthenticated: function (req, res, next) {
+    // allow some endpoints only if logged in
     if (req.isAuthenticated()) {
       return next();
     }
@@ -7,6 +8,7 @@ module.exports = {
     res.redirect("/users/login");
   },
   forwardAuthenticated: function (req, res, next) {
+    // prevent opening certain endpoints if logged in
     if (!req.isAuthenticated()) {
       return next();
     }

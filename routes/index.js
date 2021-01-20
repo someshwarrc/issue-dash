@@ -13,6 +13,7 @@ router.get("/issue-dashboard", ensureAuthenticated, (req, res) => {
     if (!err) {
       console.log(err);
     }
+    console.log(docs);
     issues = docs;
   }).then(() => {
     res.render("issue-dashboard", {

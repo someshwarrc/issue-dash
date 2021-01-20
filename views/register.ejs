@@ -15,6 +15,7 @@
             class="form-control"
             placeholder="Enter Employee ID"
             value="<%= typeof employeeID != 'undefined' ? employeeID : '' %>"
+            required
           />
         </div>
         <div class="form-group">
@@ -26,6 +27,7 @@
             class="form-control"
             placeholder="Enter Name"
             value="<%= typeof name != 'undefined' ? name : '' %>"
+            required
           />
         </div>
         <div class="form-group">
@@ -37,18 +39,17 @@
             class="form-control"
             placeholder="Enter Email"
             value="<%= typeof email != 'undefined' ? email : '' %>"
+            required
           />
         </div>
         <div class="form-group">
           <label for="role">Role</label>
-          <input
-            type="text"
-            id="role"
-            name="role"
-            class="form-control"
-            placeholder="Enter Role"
-            value="<%= typeof role != 'undefined' ? role : '' %>"
-          />
+          <select class="form-control" name="role" id="role">
+            <option selected>Choose your role</option>
+            <option value="admin">Admin</option>
+            <option value="executive">Executive</option>
+            <option value="staff">Staff</option>
+          </select>
         </div>
         <div class="form-group">
           <label for="location">Location</label>
@@ -59,6 +60,7 @@
             class="form-control"
             placeholder="Enter Location"
             value="<%= typeof location != 'undefined' ? location : '' %>"
+            required
           />
         </div>
         <div class="form-group">
@@ -70,6 +72,7 @@
             class="form-control"
             placeholder="Create Password"
             value=""
+            minlength="6"
           />
         </div>
         <div class="form-group">
@@ -81,6 +84,7 @@
             class="form-control"
             placeholder="Confirm Password"
             value=""
+            minlength="6"
           />
         </div>
         <button type="submit" class="btn btn-primary btn-block">

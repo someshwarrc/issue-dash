@@ -58,7 +58,7 @@ app.use(function (req, res, next) {
 // Routes
 app.use("/", require("./routes/index.js"));
 app.use("/users", require("./routes/users.js"));
-app.use("/issues", ensureAuthenticated, require("./routes/issues.js"));
+app.use("/issues", ensureAuthenticated, require("./routes/issues.js")); // entire endpoint needs authorization
 
 const PORT = process.env.PORT || 5000;
 

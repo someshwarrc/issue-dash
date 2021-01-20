@@ -16,12 +16,15 @@ router.post("/new", (req, res) => {
     location,
   });
 
-  newIssue.save().then((issue) => {
-    req.flash(
-      "success_msg",
-      "Your issue has been noted. An executive will get back to you asap."
-    );
+  newIssue.save().then((err, issue) => {
+    if (err) {
+      console.log(err);
+    }
   });
+  req.flash(
+    "success_msg",
+    "Your issue has been noted. An executive will get back to you asap."
+  );
 
   res.redirect("/issue-dashboard");
 });

@@ -4,9 +4,11 @@
       ><img src="webel-logo.png" alt="Webel" width="100px"
     /></a>
     <ul class="navbar-nav ml-auto">
+      <% if(user.role.toLowerCase() === 'staff') { %>
       <li class="nav-item mx-2">
         <a class="nav-link btn btn-primary" href="/issues/new">New Issue</a>
       </li>
+      <% } %>
       <li class="nav-item mx-2">
         <a class="nav-link btn btn-secondary" href="/users/logout">Logout</a>
       </li>
@@ -15,16 +17,28 @@
 </nav>
 <% include ./partials/messages %>
 <h1 class="mt-4">Issues</h1>
-<% if(typeof issues === 'undefined'||!issues) { %>
+<% if(issues.length === 0 || typeof issues === 'undefined') { %>
 <p>No Issues present in system</p>
 <% } else { %> <% issues.forEach(issue => { %>
 <div class="card w-100">
   <div class="card-body">
     <h5 class="card-title"><%- issue.title %></h5>
-    <p class="card-text"><%- issue.description %></p>
-    <% if(user.role.toLowerCase() == 'executive') { %>
-    <a href="#" class="btn btn-primary">Assign myself</a>
-    <% } %>
+    <p class="card-text lead"><%- issue.description %></p>
+    <div class="card-text d-flex justify-content-around">
+      <p class="meta-text" style="text-transform: capitalize">
+        <%- issue.location %>&nbsp;<i class="fas fa-map-marker-alt"></i>
+      </p>
+      <p class="meta-text">
+        Assigned:&nbsp;<% if(!issue.assigned){ %>
+        <i class="fas fa-times-circle"></i>
+        <% } else { %>
+        <i class="fas fa-check-circle"></i>
+        <% }%>
+      </p>
+      <% if(user.role.toLowerCase() == 'executive' && !issue.assigned) { %>
+      <a href="/issues/:" class="btn btn-primary">Assign myself</a>
+      <% } %>
+    </div>
   </div>
 </div>
 <% }); %> <% } %>
