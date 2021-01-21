@@ -23,7 +23,7 @@
 <% include ./partials/messages %>
 
 <h4 class="mt-2">
-  Problems<% if(user.role.toLowerCase() === "staff") { %> reported by you<% } %>
+  <% if(user.role.toLowerCase() !== "staff") { %> All<% } %>  Problems<% if(user.role.toLowerCase() === "staff") { %> reported by you<% } %>
 </h4>
 <hr
   style="
