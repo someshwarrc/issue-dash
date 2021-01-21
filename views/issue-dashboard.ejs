@@ -4,9 +4,14 @@
       ><img src="webel-logo.png" alt="Webel" width="100px"
     /></a>
     <ul class="navbar-nav ml-auto">
+      <li class="nav-item mx-2 pt-2">
+        <span class="fw-bold text-capitalize font-italic text-secondary">
+          <%- user.name %></span
+        >
+      </li>
       <% if(user.role.toLowerCase() === 'staff') { %>
       <li class="nav-item mx-2">
-        <a class="nav-link btn btn-primary" href="/issues/new">New Issue</a>
+        <a class="nav-link btn btn-info" href="/issues/new">New Problem</a>
       </li>
       <% } %>
       <li class="nav-item mx-2">
@@ -16,27 +21,55 @@
   </div>
 </nav>
 <% include ./partials/messages %>
-<h1 class="mt-4">Issues</h1>
+
+<h4 class="mt-2">
+  Problems<% if(user.role.toLowerCase() === "staff") { %> reported by you<% } %>
+</h4>
+<hr
+  style="
+    width: 100%;
+    height: 2px;
+    background-color: #9e9e9e;
+    padding: 0;
+    margin: 5px;
+  "
+/>
 <% if(issues.length === 0 || typeof issues === 'undefined') { %>
-<p>No Issues present in system</p>
+<p>No problems present in system</p>
 <% } else { %> <% issues.forEach(issue => { %>
 <div class="card w-100">
   <div class="card-body">
-    <h5 class="card-title"><%- issue.title %></h5>
-    <p class="card-text lead"><%- issue.description %></p>
-    <div class="card-text d-flex justify-content-around">
-      <p class="meta-text" style="text-transform: capitalize">
-        <%- issue.location %>&nbsp;<i class="fas fa-map-marker-alt"></i>
+    <h5 class="card-title fw-bold"><%- issue.title %></h5>
+    <p class="card-text "><%- issue.description %></p>
+    <div class="card-text d-flex justify-content-around align-items-center">
+      <% if(user.role !== "staff") { %>
+      <p style="text-transform: capitalize">
+        <i class="fas fa-user-edit"></i>&nbsp;<span
+          ><%- issue.reportedBy ? issue.reportedBy:" "%></span class="text-fade"
+        >
       </p>
-      <p class="meta-text">
-        Assigned:&nbsp;<% if(!issue.assigned){ %>
+      <% } %>
+      <p style="text-transform: capitalize">
+        <i class="fas fa-map-marker-alt"></i>&nbsp;<span class="text-fade"
+          ><%- issue.location %></span
+        >
+      </p>
+      <p>
+        <span class="text-fade"> Assigned:</span>&nbsp;
+        <% if(!issue.assigned){%>
         <i class="fas fa-times-circle"></i>
         <% } else { %>
         <i class="fas fa-check-circle"></i>
         <% }%>
       </p>
-      <% if(user.role.toLowerCase() == 'executive' && !issue.assigned) { %>
-      <a href="/issues/:" class="btn btn-primary">Assign myself</a>
+        <% if(issue.assigned) { %>
+          <p>
+          <span class="text-fade">Assigned To: <span class="text-light text-capitalize bg-dark"><%- issue.assignedTo === user.name ? "You" : issue.assignedTo %></span> </span>
+        </p>
+
+          <% } %> 
+      <% if(user.role.toLowerCase() !== 'staff' && !issue.assigned) { %>
+      <a href="/issues/<%-issue._id%>" class="btn btn-primary">Assign myself</a>
       <% } %>
     </div>
   </div>

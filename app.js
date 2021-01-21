@@ -4,22 +4,14 @@ const mongoose = require("mongoose");
 const passport = require("passport");
 const flash = require("connect-flash");
 const session = require("express-session");
+const favicon = require("serve-favicon");
 const path = require("path");
 const { ensureAuthenticated } = require("./config/auth.js");
 
 const app = express();
 
-// Passport Config
-require("./config/passport")(passport);
-
-// DB Config
-const db = require("./config/keys").mongoURI;
-
-// Connect to MongoDB
-mongoose
-  .connect(db, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log("MongoDB Connected"))
-  .catch((err) => console.log(err));
+// express configurations
+app.use(favicon(path.join(__dirname, "assets", "favicon.ico")));
 
 // default directory for static files
 app.use(express.static(path.join(__dirname, "assets")));
@@ -54,6 +46,18 @@ app.use(function (req, res, next) {
   res.locals.error = req.flash("error");
   next();
 });
+
+// Passport Config
+require("./config/passport")(passport);
+
+// DB Config
+const db = require("./config/keys").mongoURI;
+
+// Connect to MongoDB
+mongoose
+  .connect(db, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log("MongoDB Connected"))
+  .catch((err) => console.log(err));
 
 // Routes
 app.use("/", require("./routes/index.js"));

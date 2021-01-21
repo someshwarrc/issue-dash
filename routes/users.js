@@ -23,6 +23,7 @@ router.post("/register", (req, res) => {
     password2,
     role,
     employeeID,
+    department,
     location,
   } = req.body;
   let errors = [];
@@ -32,29 +33,32 @@ router.post("/register", (req, res) => {
     !email ||
     !password ||
     !password2 ||
-    !role ||
+    role === "Choose your role" ||
+    department === "Choose your department" ||
     !employeeID ||
-    !location
+    location === "Choose your location"
   ) {
-    errors.push({ msg: "Please enter all fields" });
+    errors.push({ msg: "Please enter all fields correctly" });
   }
 
+  // password confirm validation
   if (password != password2) {
     errors.push({ msg: "Passwords do not match" });
   }
 
+  // password strength validation
   if (password.length < 6) {
     errors.push({ msg: "Password must be at least 6 characters" });
   }
 
+  // if any errors send details for filling form partially
   if (errors.length > 0) {
     res.render("register", {
       errors,
       name,
       email,
-      password,
-      password2,
       employeeID,
+      department,
       role,
       location,
     });
@@ -80,6 +84,7 @@ router.post("/register", (req, res) => {
           role,
           employeeID,
           location,
+          department,
         });
 
         bcrypt.genSalt(10, (err, salt) => {

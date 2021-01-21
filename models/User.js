@@ -25,6 +25,20 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  department: {
+    type: String,
+    required: true,
+  },
+  issuesReported: {
+    // only for staff
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "Issue",
+  },
+  issuesHandled: {
+    // only for executive and admin
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "Issue",
+  },
 });
 
 const User = mongoose.model("User", UserSchema);

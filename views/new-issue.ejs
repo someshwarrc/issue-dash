@@ -2,20 +2,21 @@
   <div class="col-md-6 m-auto">
     <div class="card card-body">
       <h1 class="text-center mb-3">
-        <i class="fas fa-exclamation-circle"></i>Report an Issue
+        <i class="fas fa-exclamation-circle"></i>&nbsp;Report a problem
       </h1>
-      <% include ./partials/messages %> <% let date = new Date(); %>
+      <% include ./partials/messages %>
       <form action="/issues/new" method="POST">
         <div class="form-group">
           <label for="title">Title</label>
-          <input
-            type="text"
-            id="title"
-            name="title"
-            class="form-control"
-            placeholder="Give a title to the issue"
-            required
-          />
+          <select class="form-control" name="title" id="title">
+            <option selected>Choose your problem category</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+            <option value="E">E</option>
+            <option value="F">F</option>
+          </select>
         </div>
         <div class="form-group">
           <label for="description">Description</label>
@@ -30,14 +31,15 @@
         </div>
         <div class="form-group">
           <label for="location">Location</label>
-          <input
-            type="text"
-            id="location"
-            name="location"
-            class="form-control"
-            placeholder="Location"
-            required
-          />
+          <select class="form-control" name="location" id="location">
+            <option selected>Choose your location</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+            <option value="E">E</option>
+            <option value="F">F</option>
+          </select>
         </div>
         <button type="submit" class="btn btn-info btn-block">
           Submit Issue
@@ -46,10 +48,4 @@
     </div>
   </div>
 </div>
-<script>
-  let date = document.querySelector("#date");
-  let time = document.querySelector("#time");
-  let date_today = new Date(Date.now());
-  date.value = date_today.toISOString().slice(0, 10);
-  time.value = date_today.toTimeString().slice(0, 5);
-</script>
+<script></script>
