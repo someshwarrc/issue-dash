@@ -10,12 +10,14 @@ router.get("/new", (req, res) => {
 router.post("/new", (req, res) => {
   let { title, description, location } = req.body;
 
-  const reportedBy = `[${req.user.employeeID}]${req.user.name}`;
-  const newIssue = new Issue({
+  let reportedBy = `[${req.user.employeeID}]${req.user.name}`;
+  let reportedOn = Date.now();
+  let newIssue = new Issue({
     title,
     description,
     location,
     reportedBy,
+    reportedOn,
   });
 
   Issue.create(newIssue, (err, issue) => {

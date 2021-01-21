@@ -23,7 +23,8 @@
 <% include ./partials/messages %>
 
 <h4 class="mt-2">
-  <% if(user.role.toLowerCase() !== "staff") { %> All<% } %>  Problems<% if(user.role.toLowerCase() === "staff") { %> reported by you<% } %>
+  <% if(user.role.toLowerCase() !== "staff") { %> All<% } %> Problems<%
+  if(user.role.toLowerCase() === "staff") { %> reported by you<% } %>
 </h4>
 <hr
   style="
@@ -37,16 +38,17 @@
 <% if(issues.length === 0 || typeof issues === 'undefined') { %>
 <p>No problems present in system</p>
 <% } else { %> <% issues.forEach(issue => { %>
-<div class="card w-100">
+<div class="card w-100 bg-dark mt-2">
   <div class="card-body">
-    <h5 class="card-title fw-bold"><%- issue.title %></h5>
-    <p class="card-text "><%- issue.description %></p>
-    <div class="card-text d-flex justify-content-around align-items-center">
+    <h5 class="card-title font-weight-bold"><%- issue.title %></h5>
+    <p class="card-text"><%- issue.description %></p>
+    <div
+      class="card-text d-flex flex-column flex-lg-row justify-content-lg-around align-items-center"
+    >
       <% if(user.role !== "staff") { %>
       <p style="text-transform: capitalize">
-        <i class="fas fa-user-edit"></i>&nbsp;<span
-          ><%- issue.reportedBy ? issue.reportedBy:" "%></span class="text-fade"
-        >
+        <i class="fas fa-user-edit"></i>&nbsp; <%-
+        issue.reportedBy?issue.reportedBy:" "%> >
       </p>
       <% } %>
       <p style="text-transform: capitalize">
@@ -54,21 +56,30 @@
           ><%- issue.location %></span
         >
       </p>
+      <% if(issue.reportedOn) { %>
       <p>
-        <span class="text-fade"> Assigned:</span>&nbsp;
-        <% if(!issue.assigned){%>
+        Reported On:
+        <span class="text-light">&nbsp;<%- issue.reportedOn %> </span>
+      </p>
+      <% } %>
+      <p>
+        <span> Assigned:</span>&nbsp; <% if(!issue.assigned){%>
         <i class="fas fa-times-circle"></i>
         <% } else { %>
         <i class="fas fa-check-circle"></i>
         <% }%>
       </p>
-        <% if(issue.assigned) { %>
-          <p>
-          <span class="text-fade">Assigned To: <span class="text-light text-capitalize bg-dark"><%- issue.assignedTo === user.name ? "You" : issue.assignedTo %></span> </span>
-        </p>
-
-          <% } %> 
-      <% if(user.role.toLowerCase() !== 'staff' && !issue.assigned) { %>
+      <% if(issue.assigned) { %>
+      <p>
+        <span
+          >Assigned To:
+          <span class="text-light text-capitalize bg-dark"
+            ><%- issue.assignedTo === user.name ? "You" : issue.assignedTo
+            %></span
+          >
+        </span>
+      </p>
+      <% } %> <% if(user.role.toLowerCase() !== 'staff' && !issue.assigned) { %>
       <a href="/issues/<%-issue._id%>" class="btn btn-primary">Assign myself</a>
       <% } %>
     </div>
