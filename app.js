@@ -8,7 +8,15 @@ const favicon = require("serve-favicon");
 const path = require("path");
 const { ensureAuthenticated } = require("./config/auth.js");
 
+//dotenv config
+require("dotenv").config();
+
+// Passport Config
+require("./config/passport")(passport);
+
 const app = express();
+const PORT = process.env.PORT || 5000;
+const MONGO_URI = process.env.MONGO_URI.toString();
 
 // express configurations
 app.use(favicon(path.join(__dirname, "assets", "favicon.ico")));
@@ -47,15 +55,9 @@ app.use(function (req, res, next) {
   next();
 });
 
-// Passport Config
-require("./config/passport")(passport);
-
-// DB Config
-const db = require("./config/keys").mongoURI;
-
 // Connect to MongoDB
 mongoose
-  .connect(db, { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("MongoDB Connected"))
   .catch((err) => console.log(err));
 
@@ -63,7 +65,5 @@ mongoose
 app.use("/", require("./routes/index.js"));
 app.use("/users", require("./routes/users.js"));
 app.use("/issues", ensureAuthenticated, require("./routes/issues.js")); // entire endpoint needs authorization
-
-const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, console.log(`Server running on  ${PORT}`));

@@ -1,7 +1,34 @@
 const router = require("express").Router();
-const { route } = require(".");
 const Issue = require("../models/Issues");
 const User = require("../models/User");
+const nodemailer = require("nodemailer");
+
+// async..await is not allowed in global scope, must use a wrapper
+async function sendMail(staff_mail, staff_problem_statement, assignedTo) {
+  // create reusable transporter object using the default SMTP transport
+  let transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    auth: {
+      user: "testmailsrc99@gmail.com", // mail for login to google smtp
+      pass: "s@vage99", // password for login to google smtp
+    },
+  });
+
+  let message = {
+    from: '"Support" <testmailsrc99@gmail.com>', // sender address
+    to: staff_mail, // list of receivers
+    subject: `Problem Assistance`, // Subject line
+    text: `${staff_problem_statement} Your problem has been assigned to ${assignedTo}`, // plain text body
+    html: `<b style="white-space:pre-line">${staff_problem_statement}</b><em>Your problem has been assigned to <b>${assignedTo}</b></em>`, // html body
+  };
+
+  // send mail with defined transport object
+  let info = await transporter.sendMail(message);
+
+  console.log("[OK] Message sent: %s", info.messageId);
+}
 
 router.get("/new", (req, res) => {
   res.render("new-issue");
@@ -12,12 +39,14 @@ router.post("/new", (req, res) => {
 
   let reportedBy = `[${req.user.employeeID}]${req.user.name}`;
   let reportedOn = Date.now();
+  let reportedByMail = req.user.email;
   let newIssue = new Issue({
     title,
     description,
     location,
     reportedBy,
     reportedOn,
+    reportedByMail,
   });
 
   Issue.create(newIssue, (err, issue) => {
@@ -47,18 +76,27 @@ router.post("/new", (req, res) => {
   res.redirect("/issue-dashboard");
 });
 
-router.get("/:id", (req, res) => {
+router.get("/:id", async (req, res) => {
   // res.send(`Issue ${req.params.id}, User ${req.user}`);
+  let staff_mail = "",
+    assignedTo = `${req.user.role} ${req.user.name.toUpperCase()} [${
+      req.user.employeeID
+    }]`;
   req.flash("success_msg", "The problem has been assigned to you");
-  Issue.updateOne(
+  res.redirect("/issue-dashboard");
+
+  Issue.findOneAndUpdate(
     // updating issue as assigned and the name of executive to whom it's assigned
     { _id: req.params.id },
     { $set: { assigned: true, assignedTo: req.user.name } },
-    (err) => {
+    async (err, issue) => {
       if (err) {
         console.log("[ERR]The issue couldn't be assigned");
       }
       console.log(`[OK]Issue assigned to ${req.user.name}`);
+      staff_mail = issue.reportedByMail;
+      let staff_issue = `\nTitle: ${issue.title}\n Description: ${issue.description}\n`;
+      await sendMail(staff_mail, staff_issue, assignedTo);
       User.updateOne(
         //updating the issue id in issueshandled by the executive for
         // easy access in his/her profile
@@ -75,7 +113,6 @@ router.get("/:id", (req, res) => {
       );
     }
   );
-  res.redirect("/issue-dashboard");
 });
 
 module.exports = router;
