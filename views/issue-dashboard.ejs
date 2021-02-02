@@ -6,10 +6,16 @@
     <ul class="navbar-nav ml-auto">
       <li class="nav-item mx-2 pt-2">
         <span class="fw-bold text-capitalize font-italic text-secondary">
-          <%- user.name %></span
+          Welcome <%- `${user.role} ${user.name}` %></span
         >
       </li>
-      <% if(user.role.toLowerCase() === 'staff') { %>
+      <% if(user.role.toLowerCase() === 'admin') { %>
+      <li class="nav-item mx-2">
+        <a class="nav-link btn btn-info" href="/generate-report"
+          >Generate Report</a
+        >
+      </li>
+      <% } %> <% if(user.role.toLowerCase() === 'staff') { %>
       <li class="nav-item mx-2">
         <a class="nav-link btn btn-info" href="/issues/new">New Problem</a>
       </li>
@@ -38,7 +44,7 @@
 <% if(issues.length === 0 || typeof issues === 'undefined') { %>
 <p>No problems present in system</p>
 <% } else { %> <% issues.forEach(issue => { %>
-<div class="card w-100 bg-dark mt-2">
+<div class="card w-100 trans-bg mt-2">
   <div class="card-body">
     <h5 class="card-title font-weight-bold"><%- issue.title %></h5>
     <p class="card-text"><%- issue.description %></p>
@@ -56,10 +62,12 @@
           ><%- issue.location %></span
         >
       </p>
-      <% if(issue.reportedOn) { %>
+      <% if(!issue.completed){ %> <% if(issue.reportedOn) { %>
       <p>
         Reported On:
-        <span class="text-light">&nbsp;<%- issue.reportedOn %> </span>
+        <span class="text-light text-capitalize bg-primary"
+          >&nbsp;<%- issue.reportedOn %>
+        </span>
       </p>
       <% } %>
       <p>
@@ -73,14 +81,34 @@
       <p>
         <span
           >Assigned To:
-          <span class="text-light text-capitalize bg-dark"
-            ><%- issue.assignedTo === user.name ? "You" : issue.assignedTo
-            %></span
+          <span class="text-light text-capitalize bg-primary"
+            ><%- issue.assignedTo.split("-")[1] === user.employeeID ? "You" :
+            issue.assignedTo %></span
           >
         </span>
       </p>
-      <% } %> <% if(user.role.toLowerCase() !== 'staff' && !issue.assigned) { %>
+      <% } %> <% } %> <% if(!issue.completed) {%> <% if(user.role.toLowerCase()
+      === 'executive' && !issue.assigned) { %> <% /* only executives are allowed
+      to assign a problem to themselves */ %>
       <a href="/issues/<%-issue._id%>" class="btn btn-primary">Assign myself</a>
+      <% } %> <% if(user.role.toLowerCase() === 'executive' && issue.assigned &&
+      issue.assignedTo.split("-")[1] !== user.employeeID) { %> <% /* if
+      currently logged in user has the problem assigned to himself, he cannot
+      pull. only if currently logged in user does not already have the problem
+      assigned to him, he can pull */ %>
+      <a href="/issues/<%-issue._id%>/pull" class="btn btn-primary">Pull</a>
+      <% } %><% if(user.role.toLowerCase() === 'executive' && issue.assigned &&
+      issue.assignedTo.split("-")[1] === user.employeeID) { %> <% /* if
+      currently logged in user has the problem already assigned to himself he
+      can mark it as completed */ %>
+      <a href="/issues/<%-issue._id%>/complete" class="btn btn-primary"
+        >Mark As Completed</a
+      >
+      <% } %> <% } else { %>
+      <div>
+        Completed on:
+        <span class="bg-primary text-white"><%- issue.completedOn %></span>
+      </div>
       <% } %>
     </div>
   </div>

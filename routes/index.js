@@ -27,18 +27,30 @@ router.get("/issue-dashboard", ensureAuthenticated, (req, res) => {
       });
   } else {
     /* if an admin/executive has logged in he/she must be able to see all issues on the system */
-    Issue.find({}, (err, docs) => {
-      if (err) {
-        console.log("[ERR]Error with finding issues", err);
+    Issue.find(
+      {
+        /* fetch all issues for admin/executive */
+      },
+      (err, docs) => {
+        if (err) {
+          console.log("[ERR]Error with finding issues", err);
+        }
+        issues = docs;
       }
-      issues = docs;
-    }).then(() => {
+    ).then(() => {
       res.render("issue-dashboard", {
-        user: req.user,
+        user: req.user, // send current logged in user details
         issues: issues,
       });
     });
   }
+});
+
+router.get("/generate-report", (req, res) => {
+  req.flash("success_msg", "Your report was generated.");
+  res.redirect("/issue-dashboard");
+
+  // generate report
 });
 
 module.exports = router;

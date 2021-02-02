@@ -3,26 +3,43 @@ const Issue = require("../models/Issues");
 const User = require("../models/User");
 const nodemailer = require("nodemailer");
 
+require("dotenv").config();
+
 // async..await is not allowed in global scope, must use a wrapper
-async function sendMail(staff_mail, staff_problem_statement, assignedTo) {
+async function sendMail(
+  staff_mail,
+  staff_problem_statement,
+  assignedTo,
+  reassign = false
+) {
   // create reusable transporter object using the default SMTP transport
+  let message = {};
   let transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,
     secure: false,
     auth: {
-      user: "testmailsrc99@gmail.com", // mail for login to google smtp
-      pass: "s@vage99", // password for login to google smtp
+      user: `${process.env.GMAIL_ID}`, // mail for login to google smtp
+      pass: `${process.env.GMAIL_PWD}`, // password for login to google smtp
     },
   });
-
-  let message = {
-    from: '"Support" <testmailsrc99@gmail.com>', // sender address
-    to: staff_mail, // list of receivers
-    subject: `Problem Assistance`, // Subject line
-    text: `${staff_problem_statement} Your problem has been assigned to ${assignedTo}`, // plain text body
-    html: `<b style="white-space:pre-line">${staff_problem_statement}</b><em>Your problem has been assigned to <b>${assignedTo}</b></em>`, // html body
-  };
+  if (!reassign) {
+    message = {
+      from: `"Support" <${process.env.GMAIL_ID}>`, // sender address
+      to: staff_mail, // list of receivers
+      subject: `Problem Assistance`, // Subject line
+      text: `${staff_problem_statement} Your problem has been assigned to ${assignedTo}`, // plain text body
+      html: `<b style="white-space:pre-line">${staff_problem_statement}</b><em>Your problem has been assigned to <b>${assignedTo}</b></em>`, // html body
+    };
+  } else {
+    message = {
+      from: `"Support" <${process.env.GMAIL_ID}>`, // sender address
+      to: staff_mail, // list of receivers
+      subject: `Problem Assistance`, // Subject line
+      text: `${staff_problem_statement} Your problem has been re-assigned to ${assignedTo}`, // plain text body
+      html: `<b style="white-space:pre-line">${staff_problem_statement}</b><em>Your problem has been <b>REASSIGNED</b> to <b>${assignedTo}</b></em>`, // html body
+    };
+  }
 
   // send mail with defined transport object
   let info = await transporter.sendMail(message);
@@ -37,7 +54,7 @@ router.get("/new", (req, res) => {
 router.post("/new", (req, res) => {
   let { title, description, location } = req.body;
 
-  let reportedBy = `[${req.user.employeeID}]${req.user.name}`;
+  let reportedBy = `${req.user.name}[ID:${req.user.employeeID}]`;
   let reportedOn = Date.now();
   let reportedByMail = req.user.email;
   let newIssue = new Issue({
@@ -88,7 +105,12 @@ router.get("/:id", async (req, res) => {
   Issue.findOneAndUpdate(
     // updating issue as assigned and the name of executive to whom it's assigned
     { _id: req.params.id },
-    { $set: { assigned: true, assignedTo: req.user.name } },
+    {
+      $set: {
+        assigned: true,
+        assignedTo: `${req.user.name}-${req.user.employeeID}`,
+      },
+    }, // assigned to currently logged in User
     async (err, issue) => {
       if (err) {
         console.log("[ERR]The issue couldn't be assigned");
@@ -97,20 +119,40 @@ router.get("/:id", async (req, res) => {
       staff_mail = issue.reportedByMail;
       let staff_issue = `\nTitle: ${issue.title}\n Description: ${issue.description}\n`;
       await sendMail(staff_mail, staff_issue, assignedTo);
-      User.updateOne(
-        //updating the issue id in issueshandled by the executive for
-        // easy access in his/her profile
-        { _id: req.user._id },
-        { $push: { issuesHandled: req.params.id } },
-        (err) => {
-          if (err) {
-            console.log(
-              "[ERR]Error updating issue in executive/admin collection"
-            );
-          }
-          console.log(`[OK]Updated issue handled by ${req.user.name}`);
-        }
-      );
+    }
+  );
+});
+
+router.get("/:id/pull", (req, res) => {
+  // pull route for pulling an already assigned problem from another executive
+  req.flash("success_msg", "The problem was re-assigned to you");
+  let prevAssignedEmpID = "";
+
+  // updating issue assignedto
+  Issue.findOne({ _id: req.params.id }).then((issue) => {
+    // issue found store previous assigned emp ID
+    prevAssignedEmpID = issue.assignedTo.split("-")[1];
+    Issue.updateOne(
+      { _id: issue._id },
+      { $set: { assignedTo: `${req.user.name}-${req.user.employeeID}` } },
+      () => {
+        console.log(
+          `[OK]Issue reassigned successfully from EmpID:${prevAssignedEmpID} to EmpID:${req.user.employeeID}`
+        );
+      }
+    );
+  });
+  res.redirect("/issue-dashboard");
+});
+
+router.get("/:id/complete", (req, res) => {
+  req.flash("success_msg", "The problem was marked as completed!");
+  Issue.findOneAndUpdate(
+    { _id: req.params.id },
+    { $set: { completed: true, completedOn: Date.now() } },
+    () => {
+      console.log("[OK] Issue marked as completed!");
+      res.redirect("/issue-dashboard");
     }
   );
 });

@@ -3,3 +3,7 @@
   min-height: 100vh;
   box-sizing: border-box;
 }
+
+.trans-bg {
+  background-color: rgba(102, 102, 255, 0.3) !important;
+}

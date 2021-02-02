@@ -32,7 +32,8 @@ const IssueSchema = new mongoose.Schema({
     default: "None",
   },
   reportedOn: { type: Date, required: true, default: Date.now },
-  completetedOn: Date,
+  completed: { type: Boolean, default: false, required: true },
+  completedOn: Date,
 });
 
 const Issue = mongoose.model("Issue", IssueSchema);

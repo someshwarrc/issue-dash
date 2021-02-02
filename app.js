@@ -6,8 +6,10 @@ const flash = require("connect-flash");
 const session = require("express-session");
 const favicon = require("serve-favicon");
 const path = require("path");
+const bcrypt = require("bcryptjs");
 const { ensureAuthenticated } = require("./config/auth.js");
-
+const User = require("./models/User");
+const adminDetails = require("./config/admin-details");
 //dotenv config
 require("dotenv").config();
 
@@ -55,10 +57,33 @@ app.use(function (req, res, next) {
   next();
 });
 
-// Connect to MongoDB
+// Connect to MongoDB and save admin details
 mongoose
   .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log("MongoDB Connected"))
+  .then(() => {
+    console.log("MongoDB Connected");
+    let text_password = adminDetails.password;
+    bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.hash(text_password, salt, (err, encrypted) => {
+        if (err) throw err;
+        adminDetails.password = encrypted;
+        User.find({ employeeID: adminDetails.employeeID }, (err, res) => {
+          if (err) {
+            return console.log(err.message);
+          }
+          if (res) {
+            // admin already registered
+            console.log("Admin details already loaded.");
+          } else {
+            User.create(adminDetails, (err, admin) => {
+              if (err) console.log(err.message);
+              console.log("Admin:", admin);
+            });
+          }
+        });
+      });
+    });
+  })
   .catch((err) => console.log(err));
 
 // Routes
