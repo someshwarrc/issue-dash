@@ -67,7 +67,7 @@ mongoose
       bcrypt.hash(text_password, salt, (err, encrypted) => {
         if (err) throw err;
         adminDetails.password = encrypted;
-        User.find({ employeeID: adminDetails.employeeID }, (err, res) => {
+        User.findOne({ employeeID: adminDetails.employeeID }, (err, res) => {
           if (err) {
             return console.log(err.message);
           }
