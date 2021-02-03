@@ -7,6 +7,7 @@ const session = require("express-session");
 const favicon = require("serve-favicon");
 const path = require("path");
 const bcrypt = require("bcryptjs");
+const autoIncrement = require("mongoose-auto-increment");
 const { ensureAuthenticated } = require("./config/auth.js");
 const User = require("./models/User");
 const adminDetails = require("./config/admin-details");
@@ -19,6 +20,10 @@ require("./config/passport")(passport);
 const app = express();
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI.toString();
+
+var connection = mongoose.createConnection(MONGO_URI);
+
+autoIncrement.initialize(connection);
 
 // express configurations
 app.use(favicon(path.join(__dirname, "assets", "favicon.ico")));

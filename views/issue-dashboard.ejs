@@ -46,7 +46,9 @@
 <% } else { %> <% issues.forEach(issue => { %>
 <div class="card w-100 trans-bg mt-2">
   <div class="card-body">
-    <h5 class="card-title font-weight-bold"><%- issue.title %></h5>
+    <h5 class="card-title font-weight-bold">
+      Ticket #<%- issue.ticketNumber %>&nbsp;|&nbsp;Title: <%- issue.title %>
+    </h5>
     <p class="card-text"><%- issue.description %></p>
     <div
       class="card-text d-flex flex-column flex-lg-row justify-content-lg-around align-items-center"
